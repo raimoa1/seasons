@@ -1,45 +1,40 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import SeasonDisplay from './SeasonDisplay';
+import Spinner from './Spinner';
 
 
 //class-based component for use of state
 class App extends React.Component {
-  constructor(props) {
-    super(props);
+  state = {lat: null, errorMessage: ''};
 
-    // ONLY TIME WE DO DIRECT ASSIGNMENT -> initializing
-    this.state = {
-      lat: null,
-      errorMessage : ''
-    };
-
+  componentDidMount() {
     window.navigator.geolocation.getCurrentPosition(
-      position => {
-        // setting state inside callback function
-        this.setState({lat: position.coords.latitude});
-      },
-      err => {
-        this.setState ({errorMessage: err.message})
-      }
+      position => this.setState({lat: position.coords.latitude}),
+      err =>  this.setState ({errorMessage: err.message})
     );
   }
 
-  componentDidMount() {
-    console.log('My component was rendered to the screen');
-  }
-
-  // React says we have to define render (otherwise React throws an error)
-  render() {
+  renderContent() {
     //callback function to get user's location. If fails, log error
     if (this.state.errorMessage && !this.state.lat) {
-      return <div>Erorr: {this.state.errorMessage}</div>
+      return <div>Error: {this.state.errorMessage}</div>
     }
 
     if (!this.state.errorMessage && this.state.lat) {
-      return <div>latitude: {this.state.lat}</div>
+      return <SeasonDisplay lat={this.state.lat}/>
     }
+    return <Spinner message="Please accept location request" />;
+  }
 
-    return <div>Loading!</div>
+
+  // React says we have to define render (otherwise React throws an error)
+  render() {
+    return (
+    <div className="border red">
+      {this.renderContent()}
+    </div>
+    );
   }
 }
 
